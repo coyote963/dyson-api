@@ -1,19 +1,25 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
+const mongoose = require('mongoose')
+const bodyParser = require('body-parser');
+const dbConfig = require('./config/database.config.js');
+
+console.log(dbConfig.uri)
+mongoose.connect(dbConfig.uri, {
+    dbName: 'bmdb',
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+})
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use(bodyParser.urlencoded({extended : true}))
 app.use(bodyParser.json())
 
-var port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080;
+const router = express.Router();
 
-var router = express.Router();
-
-router.get('/', function(req, res) {
-    res.json({ message : "Hello World"});
-})
-
-app.use('/api', router);
+require('./app/routes/player.routes.js') (app)
 
 app.listen(port)
 console.log('Server has started on port ' + port)
