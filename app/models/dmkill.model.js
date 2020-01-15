@@ -9,7 +9,7 @@ var DMMatchSchema = new Schema({
     date_created : Date
 });
 
-const DMKillSchema = new Schema({
+var DMKillSchema = new Schema({
     killer : {
         type : { 
             profile : String,
@@ -42,6 +42,7 @@ const DMKillSchema = new Schema({
     date_created : Date,
     match : { type: Schema.Types.ObjectId, ref: 'dm_matches' }
 })
+
 DMKillSchema.plugin(mongoosePaginate)
 mongoose.model('dm_matches', DMMatchSchema)
 module.exports = mongoose.model('dm_kills', DMKillSchema);

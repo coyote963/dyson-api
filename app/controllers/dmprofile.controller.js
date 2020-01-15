@@ -28,7 +28,7 @@ exports.findOneWithInfo = async (req, res) => {
             "player.platform" : req.params.platform,
             "player.profile" : req.params.profile}
         var result = await DMProfile.find(userId)
-        .populate('player',  'color name premium hat')
+        .populate('player', 'color name premium hat')
         .exec();
         res.send(result)
     } catch (err) {
