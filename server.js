@@ -7,6 +7,8 @@ const dbConfig = require('./config/database.config.js');
 // Import the various routers
 const playerRouter = require('./app/routes/player.routes.js');
 const dmprofileRouter = require('./app/routes/dmprofile.routes.js')
+const dmkillsRouter = require('./app/routes/dmkills.routes');
+
 
 console.log(dbConfig.uri)
 mongoose.connect(dbConfig.uri, {
@@ -22,9 +24,9 @@ app.use(bodyParser.json())
 
 app.use('/players', playerRouter);
 app.use('/dmprofile', dmprofileRouter);
+app.use('/dmkills', dmkillsRouter);
 
 const port = process.env.PORT || 8080;
-const router = express.Router();
 
 app.listen(port)
 

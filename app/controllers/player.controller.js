@@ -27,4 +27,3 @@ exports.findByName = (req, res) => {
         res.send(users)
     })
 }
-

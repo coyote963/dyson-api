@@ -3,9 +3,12 @@ var Schema = mongoose.Schema;
 
 
 var DMProfileSchema = new Schema({
-    player : { 
-        platform : String,
-        profile : String
+    player : {
+        type : { 
+            profile : String,
+            platform : String
+        },
+        ref : 'Player'
     },
     mu : String,
     sigma : String,
