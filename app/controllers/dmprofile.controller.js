@@ -35,3 +35,69 @@ exports.findOneWithInfo = async (req, res) => {
         res.status(500).send(err)
     }
 }
+
+exports.findRankings = (req, res) => {
+    var myAggregate = DMProfile.aggregate([
+        {
+          '$lookup': {
+            'from': 'players', 
+            'localField': 'player', 
+            'foreignField': '_id', 
+            'as': 'newplayer'
+          }
+        }, {
+          '$project': {
+            'player.platform': 1, 
+            'mu': 1, 
+            'sigma': 1, 
+            'first': {
+              '$arrayElemAt': [
+                '$newplayer', 0
+              ]
+            }
+          }
+        }, {
+          '$project': {
+            '_id': 0, 
+            'mu': 1, 
+            'sigma': 1, 
+            'result': {
+              '$subtract': [
+                '$mu', {
+                  '$multiply': [
+                    3, '$sigma'
+                  ]
+                }
+              ]
+            }, 
+            'name': {
+              '$arrayElemAt': [
+                '$first.name', 0
+              ]
+            }
+          }
+        }, {
+          '$sort': {
+            'result': -1
+          }
+        }, {
+          '$match': {
+            'sigma': {
+              '$lt': 1
+            }
+          }
+        }
+      ]);
+    
+    const options = {
+        page: req.params.page,
+        limit: 10
+    };
+    DMProfile.aggregatePaginate(myAggregate, options)
+    .then(players => {
+        res.send(players)
+    })
+    .catch(err => {
+        res.status(500).send(err)
+    })
+}

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
-
+const mongooseAggregatePaginate = require('mongoose-aggregate-paginate-v2');
 var Schema = mongoose.Schema;
 
 var CTFMatchSchema = new Schema({
@@ -26,6 +26,7 @@ const CTFProfileSchema = new Schema({
     games : Number,
     last_updated : Date
 });
+CTFProfileSchema.plugin(mongooseAggregatePaginate)
 
 CTFProfileSchema.plugin(mongoosePaginate)
 module.exports = mongoose.model('ctf_profiles', CTFProfileSchema)
