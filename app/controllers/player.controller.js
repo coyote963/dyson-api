@@ -7,7 +7,8 @@ function escapeRegExp(string) {
 
 exports.findAll = (req, res) => {
     options = {
-        page : req.params.page
+        page : req.params.page,
+        select : '-ip'
     }
     Players.paginate({},options)
     .then(result => {
@@ -38,3 +39,5 @@ exports.findByName = (req, res) => {
         res.status(500).send(err)
     })
 }
+
+

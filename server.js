@@ -9,8 +9,8 @@ const playerRouter = require('./app/routes/player.routes.js');
 const dmprofileRouter = require('./app/routes/dmprofile.routes.js');
 const dmkillsRouter = require('./app/routes/dmkills.routes');
 const ctfprofileRouter = require('./app/routes/ctfprofile.routes.js');
-const ctfinstanceRouter = require('./app/routes/ctfinstance.routes.js')
-
+const ctfinstanceRouter = require('./app/routes/ctfinstance.routes.js');
+const chatRouter = require('./app/routes/chat.routes.js');
 
 console.log(dbConfig.uri)
 mongoose.connect(dbConfig.uri, {
@@ -29,6 +29,7 @@ app.use('/dmprofiles', dmprofileRouter);
 app.use('/dmkills', dmkillsRouter);
 app.use('/ctfprofiles', ctfprofileRouter);
 app.use('/ctfinstances', ctfinstanceRouter);
+app.use('/chat', chatRouter);
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname + '/index.html'))
@@ -41,4 +42,4 @@ const port = process.env.PORT || 8080;
 app.listen(port)
 
 console.log('Server has started on port ' + port)
-console.log('http://localhost:' + port + "/api/")
+console.log('http://localhost:' + port)
