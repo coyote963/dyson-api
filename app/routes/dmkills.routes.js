@@ -7,6 +7,7 @@ router.get('/player/:profile/platform/:platform/:page', dmkillsController.findPl
 router.get('/player/:profile/platform/:platform', dmkillsController.findPlayerKills)
 router.get('/match/:match', dmkillsController.findMatch)
 router.get('/full/:page', dmkillsController.findFullPage)
+router.get('/full', dmkillsController.findFullPage)
 router.get('/:page', dmkillsController.findPage)
 router.get('/', dmkillsController.findRecent)
 module.exports = router

@@ -21,10 +21,11 @@ exports.findRecent = (req, res) => {
 };
 
 exports.findFullPage = (req, res) => {
+    var populateOptions = ({ path: 'killer victim match', select: '-ip' });
     DMKills.paginate({}, {
         page : req.params.page,
         sort : { date_created : -1 },
-        populate : 'killer victim match'
+        populate : populateOptions
     })
     .then(result => {
         res.send(result)
