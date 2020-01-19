@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var mongoosePagination = require('mongoose-paginate-v2')
 var Schema = mongoose.Schema;
 
 
@@ -13,5 +14,5 @@ var PlayerSchema = new Schema({
     name : [String],
     hat : String
 })
-
+PlayerSchema.plugin(mongoosePagination)
 module.exports = mongoose.model('Player', PlayerSchema);

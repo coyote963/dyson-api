@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
-var mongoosePaginate = require('mongoose-aggregate-paginate-v2')
+var mongoosePaginateAggregate = require('mongoose-aggregate-paginate-v2')
+var mongoosePaginate = require('mongoose-paginate-v2')
 var Schema = mongoose.Schema;
 
 
@@ -17,5 +18,6 @@ var DMProfileSchema = new Schema({
     deaths : String,
     last_updated : String
 }, { collection: 'dm_profiles' })
+DMProfileSchema.plugin(mongoosePaginateAggregate)
 DMProfileSchema.plugin(mongoosePaginate)
 module.exports = mongoose.model('dm_profiles', DMProfileSchema);

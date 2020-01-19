@@ -1,13 +1,14 @@
 const DMProfile = require('../models/dmprofile.model.js');
 
 
-exports.findAll = async (req, res) => {
-    try {
-        var result = await DMProfile.find().exec();
+exports.findAll = (req, res) => {
+    DMProfile.paginate({},{ page : req.params.page})
+    .then(result => {
         res.send(result)
-    } catch (err) {
+    })
+    .catch(err => {
         res.status(500).send(err)
-    }
+    })
 }
 
 exports.findOne = async (req, res) => {

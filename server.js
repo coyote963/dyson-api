@@ -3,7 +3,7 @@ const app = express();
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser');
 const dbConfig = require('./config/database.config.js');
-
+var path = require('path');
 // Import the various routers
 const playerRouter = require('./app/routes/player.routes.js');
 const dmprofileRouter = require('./app/routes/dmprofile.routes.js');
@@ -29,6 +29,12 @@ app.use('/dmprofiles', dmprofileRouter);
 app.use('/dmkills', dmkillsRouter);
 app.use('/ctfprofiles', ctfprofileRouter);
 app.use('/ctfinstances', ctfinstanceRouter);
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname + '/index.html'))
+})
+app.use(express.static('public'))
+
 
 const port = process.env.PORT || 8080;
 

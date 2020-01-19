@@ -6,8 +6,15 @@ function escapeRegExp(string) {
   }
 
 exports.findAll = (req, res) => {
-    Players.find({}, function (err, users) {
-        res.send(users)
+    options = {
+        page : req.params.page
+    }
+    Players.paginate({},options)
+    .then(result => {
+        res.send(result)
+    })
+    .catch(err => {
+        res.status(500).send(err)
     })
 }
 
@@ -23,7 +30,11 @@ exports.findByName = (req, res) => {
     name = escapeRegExp(req.params.name)
     console.log(name)
     Players.find({name: new RegExp(name, "i")})
-    .exec((err, users) => {
-        res.send(users)
+    .select('-ip')
+    .then(players => {
+        res.send(players)
+    })
+    .catch(err => {
+        res.status(500).send(err)
     })
 }
