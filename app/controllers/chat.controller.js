@@ -1,5 +1,9 @@
 const chats = require('../models/chat.model.js');
 
+function getPopulateOptions(mode) {
+    return ({ path: 'profile', select: 'name color premium hat' , lean : true});
+}
+
 function getMode (mode) {
     if (mode === 'tdm') {
         return chats.tdm
@@ -12,12 +16,35 @@ function getMode (mode) {
     } else {
         throw "This is not a gamemode";
     }
-    
 }
 
-exports.findAll = (req, res) => {
+findAllCTFProfile = (req, res) => {
     x = getMode(req.params.mode)
-    x.paginate({}, { page : req.params.page })
+    var agg = x.aggregate(
+        [
+            {
+              '$lookup': {
+                'from': 'ctf_profiles', 
+                'localField': 'profile', 
+                'foreignField': 'player', 
+                'as': 'player'
+              }
+            }, {
+              '$unwind': {
+                'path': '$player'
+              }
+            }, {
+              '$project': {
+                'message': 1, 
+                'name': 1, 
+                'date_created': 1, 
+                'profile': 1, 
+                'player': 1
+              }
+            }
+          ]
+    )
+    x.aggregatePaginate(agg, {page : req.params.page})
     .then(chats => {
         res.send(chats)
     })
@@ -26,11 +53,142 @@ exports.findAll = (req, res) => {
     })
 }
 
+findAllTDMProfile = (req, res) => {
+    x = getMode(req.params.mode)
+    var agg = x.aggregate(
+        [
+            {
+              '$lookup': {
+                'from': 'tdm_profiles', 
+                'localField': 'profile', 
+                'foreignField': 'player', 
+                'as': 'player'
+              }
+            }, {
+              '$unwind': {
+                'path': '$player'
+              }
+            }, {
+              '$project': {
+                '_id': 1, 
+                'message': 1, 
+                'profile': 1, 
+                'player.mu': 1, 
+                'player.sigma': 1, 
+                'player.elo': 1, 
+                'player.kills': 1, 
+                'player.deaths': 1, 
+                'player.wins': 1, 
+                'player.losses': 1, 
+                'player.last_updated': 1
+              }
+            }
+          ]
+    );
+    x.aggregatePaginate(agg, { page : req.params.page })
+    .then(chats => {
+        res.send(chats)
+    })
+    .catch(err => {
+        res.status(500).send(err)
+    })
+}
+
+findAllDMProfile = (req, res) => {
+    x = getMode(req.params.mode)
+    var agg = x.aggregate(
+        [
+            {
+              '$lookup': {
+                'from': 'dm_profiles', 
+                'localField': 'profile', 
+                'foreignField': 'player', 
+                'as': 'player'
+              }
+            }, {
+              '$unwind': {
+                'path': '$player'
+              }
+            }, {
+              '$project': {
+                '_id': 1, 
+                'message': 1, 
+                'name': 1, 
+                'profile': 1, 
+                'player.mu': 1, 
+                'player.sigma': 1, 
+                'player.kills': 1, 
+                'player.deaths': 1, 
+                'player.last_updated': 1
+              }
+            }
+          ]
+    )
+    x.aggregatePaginate(agg, {page : req.params.page})
+    .then(chats => {
+        res.send(chats)
+    })
+    .catch(err => {
+        res.status(500).send(err)
+    })
+}
+
+exports.findAll = (req, res) => {
+    if (req.query.lookup === 'true') {
+        if (req.params.mode === 'tdm') {
+            findAllTDMProfile(req, res)
+        } else if (req.params.mode === 'dm') {
+            findAllDMProfile(req, res)
+        } else if (req.params.mode === 'ctf') {
+            findAllCTFProfile(req, res)
+        }
+    } else{
+        x = getMode(req.params.mode)
+        var agg = x.aggregate(
+            [
+                {
+                  '$lookup': {
+                    'from': 'players', 
+                    'localField': 'profile', 
+                    'foreignField': '_id', 
+                    'as': 'player'
+                  }
+                }, {
+                  '$unwind': {
+                    'path': '$player'
+                  }
+                }, {
+                  '$project': {
+                    '_id': 1, 
+                    'message': 1, 
+                    'date_created': 1, 
+                    'player._id': 1, 
+                    'player.color': 1, 
+                    'player.hat': 1, 
+                    'player.premium': 1, 
+                    'player.name': 1
+                  }
+                }
+              ]
+        );
+        x.aggregatePaginate(agg, { page : req.params.page })
+        .then(chats => {
+            res.send(chats)
+        })
+        .catch(err => {
+            res.status(500).send(err)
+        })
+    }
+}
+
 exports.findUser = (req, res) => {
     x = getMode(req.params.mode)
+    populateOptions = getPopulateOptions(req.params.mode)
     x.paginate({ 'profile.profile' : req.params.profile,
         'profile.platform' : req.params.platform
-    }, {page : req.params.page})
+    }, {page : req.params.page,
+        populate : populateOptions
+    })
     .then(chats => {
         res.send(chats)
     })
@@ -47,6 +205,7 @@ exports.findContext = (req, res) => {
         x.find({_id : { $lte : req.params.chatId}})
         .sort({ _id : -1})
         .limit(10)
+        .populate('profile')
         .then(earlier => {
             x.find({_id : { $gt : req.params.chatId}})
             .limit(10)
@@ -78,3 +237,4 @@ exports.findKeyword = (req, res) => {
         res.status(500).send(err)
     })
 }
+
