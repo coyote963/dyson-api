@@ -6,10 +6,7 @@ var Schema = mongoose.Schema;
 
 var DMProfileSchema = new Schema({
     player : {
-        type : { 
-            profile : String,
-            platform : String
-        },
+        type: Schema.Types.ObjectId,
         ref : 'Player'
     },
     mu : String,

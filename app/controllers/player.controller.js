@@ -6,8 +6,15 @@ function escapeRegExp(string) {
   }
 
 exports.findAll = (req, res) => {
+    req.query.page = req.query.page ? req.query.page : 1
+    req.query.size = req.query.size ? req.query.size : 20
+    if (req.query.page < 1) {
+        req.query.page = 1
+    }
+
     options = {
-        page : req.params.page,
+        page : req.query.page,
+        limit : req.query.size,
         select : '-ip'
     }
     Players.paginate({},options)
@@ -29,7 +36,6 @@ exports.findOne = (req, res) => {
 
 exports.findByName = (req, res) => {
     name = escapeRegExp(req.params.name)
-    console.log(name)
     Players.find({name: new RegExp(name, "i")})
     .select('-ip')
     .then(players => {

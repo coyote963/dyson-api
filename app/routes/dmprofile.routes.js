@@ -6,4 +6,5 @@ router.get('/:profile/platform/:platform', dmprofileController.findOne);
 router.get('/rankings', dmprofileController.findRankings)
 router.get('/rankings/:page', dmprofileController.findRankings)
 router.get('/', dmprofileController.findAll);
+router.get('/search', dmprofileController.search);
 module.exports = router;
