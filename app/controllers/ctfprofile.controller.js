@@ -1,5 +1,8 @@
 const CTFProfile = require('../models/ctfprofile.model.js');
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
 exports.findAll = (req, res) => {
     CTFProfile.paginate({}, {
         page : req.params.page,
@@ -11,6 +14,130 @@ exports.findAll = (req, res) => {
         res.status(500).send(err)
     })
 };
+
+
+exports.search = (req, res) => {
+  req.query.keyword = req.query.keyword ? escapeRegExp(req.query.keyword) : ""
+  req.query.page =  req.query.page ? req.query.page : 1
+  req.query.size =  req.query.size ? req.query.size : 20
+
+  page = parseInt(req.query.page)
+  page += 1
+  
+  var myAggregate = CTFProfile.aggregate([
+    {
+      '$lookup': {
+        'from': 'players', 
+        'localField': 'player', 
+        'foreignField': '_id', 
+        'as': 'player'
+      }
+    }, {
+      '$project': {
+        'player.ip': 0
+      }
+    }, {
+      '$addFields': {
+        'rating': {
+          '$subtract': [
+            '$mu', {
+              '$multiply': [
+                3, '$sigma'
+              ]
+            }
+          ]
+        }
+      }
+    }, {
+      '$match': {
+        'player.name': new RegExp(req.query.keyword, "i")
+      }
+    }
+  ])
+  if (req.query.sort === '') {
+    myAggregate.sort('-rating')
+  }
+  if (req.query.sort === '') {
+    myAggregate.sort('-rating')
+  }
+  if (req.query.sort === 'rating') {
+    if (req.query.order === 'asc') {
+      myAggregate.sort('rating')
+    } else {
+      myAggregate.sort('-rating')
+    }
+  }
+  if (req.query.sort === 'kills') {
+    if (req.query.order === 'asc') {
+      myAggregate.sort('kills')
+    } else {
+      myAggregate.sort('-kills')
+    }
+  }
+  if (req.query.sort === 'deaths') {
+    if (req.query.order === 'asc') {
+      myAggregate.sort('deaths')
+    } else {
+      myAggregate.sort('-deaths')
+    }
+  }
+  if (req.query.sort === 'last_updated') {
+    if (req.query.order === 'asc') {
+      myAggregate.sort('last_updated')
+    } else {
+      myAggregate.sort('-last_updated')
+    }
+  }
+  if (req.query.sort === 'captures') {
+    if (req.query.order === 'asc') {
+      myAggregate.sort('captures')
+    } else {
+      myAggregate.sort('-captures')
+    }
+  }
+  if (req.query.sort === 'wins') {
+    if (req.query.order === 'asc') {
+      myAggregate.sort('wins')
+    } else {
+      myAggregate.sort('-wins')
+    }
+  }
+  if (req.query.sort === 'losses') {
+    if (req.query.order === 'asc') {
+      myAggregate.sort('losses')
+    } else {
+      myAggregate.sort('-losses')
+    }
+  }
+  if (req.query.active === 'true') {
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30)
+    myAggregate.match({
+      'last_updated' : {
+        '$gt' : cutoff
+      }
+    })
+  }
+  if (req.query.accurate === 'true') {
+    myAggregate.match({
+        'mu' : {
+            '$lt' : 1
+        }
+    })
+  }
+  options = {
+    page : page,
+    limit : req.query.size,
+  }
+  CTFProfile.aggregatePaginate(myAggregate, options)
+  .then(players => {
+      res.send(players)
+  })
+  .catch(err => {
+      res.status(500).send(err)
+  })
+}
+
 
 
 exports.findUser = async (req, res) => {

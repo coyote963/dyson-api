@@ -40,6 +40,9 @@ exports.search = (req, res) => {
           }
         }
     ])
+    if (req.query.sort === '') {
+        myAggregate.sort('-rating')
+      }
     if (req.query.sort === 'rating') {
         if (req.query.order === 'asc') {
           myAggregate.sort('rating')
@@ -61,6 +64,20 @@ exports.search = (req, res) => {
             myAggregate.sort('-deaths')
         }
     }
+    if (req.query.sort === 'wins') {
+        if (req.query.order === 'asc') {
+            myAggregate.sort('wins')
+        } else {
+            myAggregate.sort('-wins')
+        }
+    }
+    if (req.query.sort === 'losses') {
+        if (req.query.order === 'asc') {
+            myAggregate.sort('losses')
+        } else {
+            myAggregate.sort('-losses')
+        }
+    }
     if (req.query.sort === 'last_updated') {
         if (req.query.order === 'asc') {
             myAggregate.sort('last_updated')
@@ -74,6 +91,13 @@ exports.search = (req, res) => {
         myAggregate.match({
             'last_updated' : {
                 '$gt' : cutoff
+            }
+        })
+    }
+    if (req.query.accurate === 'true') {
+        myAggregate.match({
+            'mu' : {
+                '$lt' : 1
             }
         })
     }

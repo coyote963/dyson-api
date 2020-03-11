@@ -64,6 +64,9 @@ exports.search = (req, res) => {
       }
     }
   ])
+  if (req.query.sort === '') {
+    myAggregate.sort('-rating')
+  }
   if (req.query.sort === 'rating') {
     if (req.query.order === 'asc') {
       myAggregate.sort('rating')
@@ -99,6 +102,13 @@ exports.search = (req, res) => {
       'last_updated' : {
         '$gt' : cutoff
       }
+    })
+  }
+  if (req.query.accurate === 'true') {
+    myAggregate.match({
+        'mu' : {
+            '$lt' : 1
+        }
     })
   }
   options = {

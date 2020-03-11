@@ -8,12 +8,11 @@ function escapeRegExp(string) {
 exports.findAll = (req, res) => {
     req.query.page = req.query.page ? req.query.page : 1
     req.query.size = req.query.size ? req.query.size : 20
-    if (req.query.page < 1) {
-        req.query.page = 1
-    }
+    page = parseInt(req.query.page)
+    page += 1
 
     options = {
-        page : req.query.page,
+        page : page,
         limit : req.query.size,
         select : '-ip'
     }
