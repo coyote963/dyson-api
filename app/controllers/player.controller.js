@@ -1,5 +1,10 @@
-const Players = require('../models/player.model.js');
-
+const models = require('../models/player.model.js');
+const kills = require('../models/dmkill.model.js');
+const tdmkills = require('../models/tdmkill.model.js');
+var mongoose = require('mongoose');
+const chat = require('../models/chat.model.js')
+const secrets = require('../../config/database.config')
+const http = require('http')
 // Sanitize user input
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -16,7 +21,7 @@ exports.findAll = (req, res) => {
         limit : req.query.size,
         select : '-ip'
     }
-    Players.paginate({},options)
+    models.player.paginate({},options)
     .then(result => {
         res.send(result)
     })
@@ -24,9 +29,28 @@ exports.findAll = (req, res) => {
         res.status(500).send(err)
     })
 }
+exports.activity = async function(req, res) {
+    var id = mongoose.Types.ObjectId(req.params.id)
 
+    var svlkill = await models.svlkill.find({killer : id}, 'date_created').exec()
+    var dmkill = await kills.find({ $or : [{'killer' : id}, {'victim' : id}]}, 'date_created').exec()
+    var tdmkill = await tdmkills.find({ $or : [{'killer' : id}, {'victim' : id}]}, 'date_created').exec()
+    var tdmchat = await chat.tdm.find({ player : id }, 'date_created').exec()
+    res.send(svlkill.concat(dmkill, tdmkill, tdmchat))
+}
+exports.findById = (req, res) => {
+    var id = mongoose.Types.ObjectId(req.params.id)
+    models.player.findById(id, '-ip', (err, player ) => {
+        if (err) {
+            res.status(500).send(err)
+        } else {
+            res.send(player)
+        }
+
+    })
+}
 exports.findOne = (req, res) => {
-    Players.findById(req.params, '-ip',
+    models.player.findById(req.params, '-ip',
         function (err, player) {
             res.send(player)
         }
@@ -35,7 +59,7 @@ exports.findOne = (req, res) => {
 
 exports.findByName = (req, res) => {
     name = escapeRegExp(req.params.name)
-    Players.find({name: new RegExp(name, "i")})
+    models.player.find({name: new RegExp(name, "i")})
     .select('-ip')
     .then(players => {
         res.send(players)
@@ -45,4 +69,19 @@ exports.findByName = (req, res) => {
     })
 }
 
+exports.findSteamAvatar = (req, res) => {
+    route = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + secrets.steamkey + "&steamids=" + req.params.steamid
+    http.get(route, (response, error ) => {
+        if (error) res.send(error)
 
+        var data = ''
+        response.setEncoding('utf8')
+        response.on('data', function(d) {
+            data += d
+        })
+        response.on('end', function(d) {
+            let jsonResp = JSON.parse(data)
+            res.send({avatar : jsonResp['response']['players'][0]['avatarfull']})
+        })
+    })
+}

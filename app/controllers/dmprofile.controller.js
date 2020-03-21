@@ -215,3 +215,45 @@ exports.findRankings = (req, res) => {
         res.status(500).send(err)
     })
 }
+
+
+exports.findById = async (req, res) => {
+  var profile = await DMProfile.findOne({player : req.params.id});
+  if (!profile) {
+    res.status(404).send("Could not locate this player");
+  } else {
+    var myAggregate = [{
+        '$addFields': {
+          'rating': {
+            '$subtract': [
+              '$mu', {
+                '$multiply': [
+                  3, '$sigma'
+                ]
+              }
+            ]
+          }
+        }
+      }, {
+        '$match': {
+          'rating': {
+            '$gt': profile.mu - 3 * profile.sigma
+          }
+        }
+      }, {
+        '$count': 'rank'
+      }
+    ]
+    var total = await DMProfile.countDocuments()
+    var rank = await DMProfile.aggregate(myAggregate).catch(err => {
+      res.status(500).send(err)
+    })
+    rank = rank[0]['rank']
+    res.send({
+      profile : profile,
+      total : total,
+      ranking : rank,
+      percentile : 100 * ( total - rank ) / total
+    })
+  }
+}

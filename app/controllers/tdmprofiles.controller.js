@@ -3,6 +3,19 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+exports.findById = async (req, res) => {
+    var profile = await TDMProfile.findOne({player : req.params.id});
+    if (!profile) {
+        res.status(404).send("can't locate that player");
+        return;
+    }
+    var x = await TDMProfile.find({}).count()
+    var y = await TDMProfile.find(
+        {elo : { $lte : profile.elo}
+    }).countDocuments()
+    res.send({profile : profile, percentile: y * 100.0 / x, ranking : x - y, total : x})
+}
+
 exports.search = (req, res) => {
     req.query.keyword = req.query.keyword ? escapeRegExp(req.query.keyword) : ""
     req.query.page = req.query.page ? req.query.page : 1

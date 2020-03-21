@@ -22,7 +22,3 @@ exports.findAllFull = (req, res) => {
         res.status(500).send(err)
     })
 }
-
-exports.search = (req, res) => {
-    TDM
-}

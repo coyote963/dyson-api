@@ -7,7 +7,7 @@ router.get('/full/:profile/platform/:platform', ctfprofileController.findFullUse
 router.get('/search', ctfprofileController.search);
 router.get('/rankings/', ctfprofileController.findRankings);
 router.get('/rankings/:page', ctfprofileController.findRankings);
+router.get('/id/:id',ctfprofileController.findById);
 router.get('/:page', ctfprofileController.findAll);
 router.get('/', ctfprofileController.findAll);
-
 module.exports = router

@@ -8,20 +8,35 @@ var DMMatchSchema = new Schema({
     date_created : Date
 });
 
-var DMKillSchema = new Schema({
-    killer : {
-        type : { 
-            profile : String,
-            platform : String
-        },
+
+var DMProfileSchema = new Schema({
+    player : {
+        type: Schema.Types.ObjectId,
         ref : 'Player'
     },
+    mu : String,
+    sigma : String,
+    kills : String,
+    deaths : String,
+    last_updated : String
+}, { collection: 'dm_profiles' })
+
+var DMKillSchema = new Schema({
+    killer : {
+        type: Schema.Types.ObjectId,
+        ref: 'players'
+    },
+    killer_profile : {
+        type: Schema.Types.ObjectId,
+        ref: 'dm_profiles'
+    },
     victim : {
-        type : { 
-            profile : String,
-            platform : String
-        },
-        ref : 'Player'
+        type: Schema.Types.ObjectId,
+        ref: 'players'
+    },
+    victim_profile : {
+        type: Schema.Types.ObjectId,
+        ref: 'dm_profiles'
     },
     killer_rating : {
         mu : Number,
@@ -41,6 +56,7 @@ var DMKillSchema = new Schema({
     date_created : Date,
     match : { type: Schema.Types.ObjectId, ref: 'dm_matches' }
 })
+
 
 DMKillSchema.plugin(mongoosePaginate)
 mongoose.model('dm_matches', DMMatchSchema)

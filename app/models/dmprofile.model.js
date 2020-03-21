@@ -9,11 +9,11 @@ var DMProfileSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref : 'Player'
     },
-    mu : String,
-    sigma : String,
-    kills : String,
-    deaths : String,
-    last_updated : String
+    mu : Number,
+    sigma : Number,
+    kills : Number,
+    deaths : Number,
+    last_updated : Date,
 }, { collection: 'dm_profiles' })
 DMProfileSchema.plugin(mongoosePaginateAggregate)
 DMProfileSchema.plugin(mongoosePaginate)

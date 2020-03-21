@@ -224,3 +224,45 @@ exports.findRankings = (req, res) => {
         res.status(500).send(err)
     })
 }
+
+exports.findById = async (req, res) => {
+  console.log(req.params.id)
+  var player = await CTFProfile.findOne({player : req.params.id})
+  if (!player) {
+    res.send("player not found")
+  } else {
+    var myAggregate = [{
+        '$addFields': {
+          'rating': {
+            '$subtract': [
+              '$mu', {
+                '$multiply': [
+                  3, '$sigma'
+                ]
+              }
+            ]
+          }
+        }
+      }, {
+        '$match': {
+          'rating': {
+            '$gt': player.mu - 3 * player.sigma
+          }
+        }
+      }, {
+        '$count': 'rank'
+      }
+    ]
+    var total = await CTFProfile.countDocuments()
+    var rank = await CTFProfile.aggregate(myAggregate).catch(err => {
+      res.status(500).send(err)
+    })
+    rank = rank[0]['rank']
+    res.send({
+      profile : player,
+      total : total,
+      ranking : rank,
+      percentile : 100 * ( total - rank ) / total
+    })
+  }
+}

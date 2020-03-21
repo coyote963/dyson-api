@@ -10,10 +10,7 @@ var CTFMatchSchema = new Schema({
 
 const CTFProfileSchema = new Schema({
     player : {
-        type : {
-            profile : String,
-            platform : String
-        },
+        type: Schema.Types.ObjectId,
         ref : 'Player'
     },
     mu : Number,

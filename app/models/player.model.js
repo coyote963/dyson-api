@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 
 var PlayerSchema = new Schema({
-    _id : { 
+    player : { 
         profile : String,
         platform : String
     },
@@ -14,5 +14,21 @@ var PlayerSchema = new Schema({
     name : [String],
     hat : String
 })
+
+var SvlKillSchema = new Schema({
+    killer : {
+        type: Schema.Types.ObjectId,
+        ref: 'dm_profiles'
+    },
+    enemy_rank: String,
+    enemy_type: String,
+    date_created: Date,
+    current_round: {
+        type: Schema.Types.ObjectId,
+        ref: "svl_rounds",
+    },
+    weapon: String
+})
 PlayerSchema.plugin(mongoosePagination)
-module.exports = mongoose.model('Player', PlayerSchema);
+module.exports.player = mongoose.model('Player', PlayerSchema);
+module.exports.svlkill = mongoose.model('svl_kills', SvlKillSchema);

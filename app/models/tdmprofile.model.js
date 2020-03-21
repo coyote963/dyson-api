@@ -9,14 +9,14 @@ var TDMProfileSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref : 'Player'
     },
-    mu : String,
-    sigma : String,
-    elo : String,
-    kills : String,
-    deaths : String,
-    wins : String,
-    losses : String,
-    last_updated : String
+    mu : Number,
+    sigma : Number,
+    elo : Number,
+    kills : Number,
+    deaths : Number,
+    wins : Number,
+    losses : Number,
+    last_updated : Date,
 }, { collection: 'tdm_profiles' })
 
 TDMProfileSchema.plugin(mongooseAggregatePaginate)
