@@ -99,9 +99,17 @@ exports.search = (req, res) => {
     var cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 30)
     myAggregate.match({
-      'last_updated' : {
-        '$gt' : cutoff
-      }
+      '$and' : [
+        {
+          'last_updated' : {
+            '$gt' : cutoff
+          }
+        }, {
+          'sigma' : {
+            '$lt' : 1
+          }
+        }
+      ]
     })
   }
   if (req.query.accurate === 'true') {
