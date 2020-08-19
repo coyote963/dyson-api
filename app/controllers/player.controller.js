@@ -85,3 +85,35 @@ exports.findSteamAvatar = (req, res) => {
         })
     })
 }
+
+exports.findAltAccounts = async function(req, res) {
+    var id = mongoose.Types.ObjectId(req.params.id)
+    var ips = []
+    var ids = []
+    models.player.findById(id, (err, player ) => {
+        if (err) {
+            res.status(500).send(err)
+        } else {
+            ids.unshift(player.id)
+            ips.unshift(...player.ip)
+            
+        }
+    })
+    .then(async () => {
+        while (ips.length > 0) {
+            var ip = ips.shift()
+            var players = await models.player.find({ ip : ip}).exec();
+            for (var x = 0; x < players.length; x++) {
+                var p = players[x]
+                if (!ids.includes(p.id)) {  ids.push(p.id); }
+                for (const newIp in p.ip) {
+                    if (newIp !== ip && !ips.includes(newIp)) {
+                        ips.push(newIp)
+                    }
+                }
+            }
+
+        }
+        res.send(ids)
+    })
+}

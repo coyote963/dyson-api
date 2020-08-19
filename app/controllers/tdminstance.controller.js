@@ -1,4 +1,5 @@
 const TDMInstance = require('../models/tdmprofile.model');
+
 exports.findAll = (req, res) => {
     TDMInstance.paginate({}, {
         page : req.params.page

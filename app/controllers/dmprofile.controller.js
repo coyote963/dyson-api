@@ -253,15 +253,29 @@ exports.findById = async (req, res) => {
       }
     ]
     var total = await DMProfile.countDocuments()
-    var rank = await DMProfile.aggregate(myAggregate).catch(err => {
+    DMProfile.aggregate(myAggregate)
+    .then(result => {
+      if (result.length === 0) {
+        res.send({
+          profile : profile,
+          total : total,
+          ranking : 1,
+          percentile : 100
+        })
+      } else {
+        rank = result[0]['rank']
+        res.send({
+          profile : profile,
+          total : total,
+          ranking : rank,
+          percentile : 100 * ( total - rank ) / total
+        })
+      }
+    })
+    .catch(err => {
+      console.log(err)
       res.status(500).send(err)
     })
-    rank = rank[0]['rank']
-    res.send({
-      profile : profile,
-      total : total,
-      ranking : rank,
-      percentile : 100 * ( total - rank ) / total
-    })
+    
   }
 }

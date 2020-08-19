@@ -3,11 +3,23 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 var TDMProfileSchema = require('./tdmprofile.model')
 var Schema = mongoose.Schema;
 
-
 var TDMMatchSchema = new Schema({
     map_name: String,
     date_created : Date
 });
+
+
+var PlayerSchema = new Schema({
+    player : { 
+        profile : String,
+        platform : String
+    },
+    color : String,
+    premium : String,
+    ip : [String],
+    name : [String],
+    hat : String
+})
 
 var TDMKillSchema = new Schema({
     killer : {
@@ -43,5 +55,6 @@ var TDMKillSchema = new Schema({
 
 
 TDMKillSchema.plugin(mongoosePaginate)
+mongoose.model('players', PlayerSchema);
 mongoose.model('tdm_matches', TDMMatchSchema)
 module.exports = mongoose.model('tdm_kills', TDMKillSchema);
