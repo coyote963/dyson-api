@@ -46,11 +46,11 @@ app.get("/", (req, res) => {
 app.use(express.static('public'))
 
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8081;
+const host = '0.0.0.0'
 
 
+app.listen(port, host);
 
-app.listen(port)
-
-console.log('Server has started on port ' + port)
+console.log(`Server is running on ${host}:${port}`)
 console.log('http://localhost:' + port)
