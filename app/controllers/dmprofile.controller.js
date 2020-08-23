@@ -1,4 +1,6 @@
 const DMProfile = require('../models/dmprofile.model.js');
+const DMKill = require('../models/dmkill.model.js');
+const { ObjectId } = require('mongodb');
 // Sanitize user input
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -278,4 +280,82 @@ exports.findById = async (req, res) => {
     })
     
   }
+}
+
+
+exports.findFavoriteWeapons = async (req, res) => {
+  DMKill.aggregate([
+    {
+      '$match': {
+        'killer': new ObjectId(req.params.id)
+      }
+    }, {
+      '$group': {
+        '_id': '$weapon', 
+        'frequency': {
+          '$sum': 1
+        }
+      }
+    }, {
+      '$sort': {
+        'frequency': -1
+      }
+    }
+  ]).then(results => {
+    res.send(results)
+  })
+}
+
+
+exports.getRatingHistory = (req, res) => {
+  console.log("Here")
+  DMKill.aggregate([
+    {
+      '$match': {
+        '$or': [
+          {
+            'killer': new ObjectId(req.params.id)
+          }, {
+            'victim': new ObjectId(req.params.id)
+          }
+        ]
+      }
+    }, {
+      '$addFields': {
+        'isPlayer': {
+          '$cond': {
+            'if': {
+              '$eq': [
+                '$killer', new ObjectId(req.params.id)
+              ]
+            }, 
+            'then': true, 
+            'else': false
+          }
+        }
+      }
+    }, {
+      '$project': {
+        'isPlayer': 1, 
+        'date_created': 1, 
+        'killer_rating': 1, 
+        'victim_rating': 1
+      }
+    }
+  ])
+  .then(kills => {
+    var history = kills
+    .map(kill => {
+      var takenRating = kill.isPlayer ? kill.killer_rating : kill.victim_rating
+      timestamp = kill._id.toString().substring(0,8)
+      return {
+        name :  new Date( parseInt( timestamp.substring(0,8), 16 ) * 1000 ),
+        value : takenRating.mu - 3 * takenRating.sigma
+      }
+    })
+    res.send([{
+      name : "Player",
+      series : history
+    }])
+  })
 }

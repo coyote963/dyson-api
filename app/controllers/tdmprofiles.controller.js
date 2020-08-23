@@ -2,9 +2,7 @@ const TDMProfile= require('../models/tdmprofile.model');
 const TDMKill = require('../models/tdmkill.model');
 const TDMRound = require('../models/tdmround.model');
 const Player = require('../models/player.model').player;
-const {
-  ObjectId
-} = require('mongodb');
+const {ObjectId} = require('mongodb');
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
@@ -60,7 +58,7 @@ exports.search = (req, res) => {
         }
     ])
     if (req.query.sort === '') {
-        myAggregate.sort('-rating')
+        myAggregate.sort('-elo')
       }
     if (req.query.sort === 'rating') {
         if (req.query.order === 'asc') {
@@ -241,8 +239,6 @@ exports.mapWinrates = async (req, res) => {
   losecounts.forEach(function(item) {
     losses[item._id] = item.frequency
   })
-  console.log(losses)
-  console.log(wins)
   for (const key in wins) {
     if (key in losses) {
       results[key] = {rate: wins[key] / (wins[key] + losses[key]), games: wins[key] + losses[key]}

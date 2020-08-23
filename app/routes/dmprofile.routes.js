@@ -8,4 +8,7 @@ router.get('/rankings/:page', dmprofileController.findRankings)
 router.get('/id/:id', dmprofileController.findById)
 router.get('/', dmprofileController.findAll);
 router.get('/search', dmprofileController.search);
+router.get('/weapons/:id', dmprofileController.findFavoriteWeapons)
+router.get('/history/:id', dmprofileController.getRatingHistory)
+
 module.exports = router;

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var playerController = require('../controllers/player.controller.js');
 const { player } = require('../models/player.model.js');
+router.get('/climbs', playerController.getAllClimbs)
 router.get('/:profile/platform/:platform', playerController.findOne);
 router.get('/name/:name', playerController.findByName);
 router.get('/activity/:id', playerController.activity);

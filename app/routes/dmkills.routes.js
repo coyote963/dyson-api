@@ -10,4 +10,7 @@ router.get('/full/:page', dmkillsController.findFullPage)
 router.get('/full', dmkillsController.findFullPage)
 router.get('/:page', dmkillsController.findPage)
 router.get('/', dmkillsController.findRecent)
+router.get('/findall/:id', dmkillsController.findAll)
+router.get('/mostplayed/:id', dmkillsController.getMostPlayed);
+
 module.exports = router

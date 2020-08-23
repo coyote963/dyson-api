@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 const chat = require('../models/chat.model.js')
 const secrets = require('../../config/database.config')
 const http = require('http')
+const clb = require('../models/clb.model.js')
 // Sanitize user input
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -81,7 +82,14 @@ exports.findSteamAvatar = (req, res) => {
         })
         response.on('end', function(d) {
             let jsonResp = JSON.parse(data)
-            res.send({avatar : jsonResp['response']['players'][0]['avatarfull']})
+            console.log(jsonResp);
+            console.log(req.params.steamid);
+            try {
+                res.send({avatar : jsonResp['response']['players'][0]['avatarfull']})
+            }
+            catch (err) {
+                res.send(err)
+            }
         })
     })
 }
@@ -116,4 +124,50 @@ exports.findAltAccounts = async function(req, res) {
         }
         res.send(ids)
     })
+}
+
+exports.getAllClimbs = (req, res) => {
+    clb.aggregate([
+        {
+          '$sort': {
+            'time': 1
+          }
+        }, {
+          '$lookup': {
+            'from': 'players', 
+            'localField': 'player', 
+            'foreignField': '_id', 
+            'as': 'player'
+          }
+        }, {
+          '$unwind': {
+            'path': '$player'
+          }
+        }, {
+          '$project': {
+            'map_name': 1, 
+            'map_path': 1, 
+            'date_created': 1, 
+            'time': 1, 
+            'names': '$player.name', 
+            'player': '$player._id'
+          }
+        }, {
+          '$group': {
+            '_id': '$map_name', 
+            'map_id': {
+              '$first': '$map_path'
+            }, 
+            'times': {
+              '$push': {
+                'names': '$names', 
+                'time': '$time', 
+                'date_created': '$date_created', 
+                'player': '$player'
+              }
+            }
+          }
+        }
+      ]).then(result => res.send(result))
+    
 }
