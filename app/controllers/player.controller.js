@@ -133,9 +133,25 @@ exports.getAllClimbs = (req, res) => {
             'time': 1
           }
         }, {
+          '$group': {
+            '_id': {
+              'map_name': '$map_name', 
+              'player': '$player'
+            }, 
+            'map_id': {
+              '$first': '$map_path'
+            }, 
+            'best_time': {
+              '$first': '$time'
+            }, 
+            'date_created': {
+              '$first': '$date_created'
+            }
+          }
+        }, {
           '$lookup': {
             'from': 'players', 
-            'localField': 'player', 
+            'localField': '_id.player', 
             'foreignField': '_id', 
             'as': 'player'
           }
@@ -145,23 +161,27 @@ exports.getAllClimbs = (req, res) => {
           }
         }, {
           '$project': {
-            'map_name': 1, 
-            'map_path': 1, 
+            'map_name': '$_id.map_name', 
+            'map_id': 1, 
             'date_created': 1, 
-            'time': 1, 
+            'best_time': 1, 
             'names': '$player.name', 
             'player': '$player._id'
+          }
+        }, {
+          '$sort': {
+            'best_time': 1
           }
         }, {
           '$group': {
             '_id': '$map_name', 
             'map_id': {
-              '$first': '$map_path'
+              '$first': '$map_id'
             }, 
             'times': {
               '$push': {
                 'names': '$names', 
-                'time': '$time', 
+                'time': '$best_time', 
                 'date_created': '$date_created', 
                 'player': '$player'
               }
