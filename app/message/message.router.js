@@ -4,6 +4,6 @@ var router = express.Router();
 
 var messageController = require('./message.controller');
 
-router.get('/', messageController.getMessage)
-
+router.get('/', messageController.fetchMessages)
+router.get('/pm/:sender/:recipient', messageController.fetchPrivateChat)
 module.exports = router

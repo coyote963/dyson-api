@@ -91,7 +91,7 @@ app.use('/ctfinstances', ctfinstanceRouter);
 app.use('/chat', chatRouter);
 app.use('/tdminstances', tdminstanceRouter);
 app.use('/tdmprofiles', tdmprofileRouter);
-app.use('/messages',auth_middleware, messageRouter)
+app.use('/messages', messageRouter)
 app.use('/auth', authRouter)
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
