@@ -20,7 +20,8 @@ exports.findAll = (req, res) => {
     options = {
         page : page,
         limit : req.query.size,
-        select : '-ip'
+        select : '-ip',
+        sort : '-_id'
     }
     models.player.paginate({},options)
     .then(result => {

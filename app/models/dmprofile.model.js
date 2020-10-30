@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 var mongoosePaginateAggregate = require('mongoose-aggregate-paginate-v2')
 var mongoosePaginate = require('mongoose-paginate-v2')
-var Schema = mongoose.Schema;
 
 
 var DMProfileSchema = new Schema({
