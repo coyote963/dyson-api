@@ -144,7 +144,7 @@ io.on("connection", socket => {
     if (connectedSockets.hasOwnProperty(to)) {
       connectedSockets[to].emit('PRIVATE_MESSAGE', data)
     }
-    io.emit("PRIVATE_MESSAGE", data)
+    socket.emit("PRIVATE_MESSAGE", data)
   })
 })
 
