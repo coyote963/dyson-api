@@ -139,12 +139,12 @@ io.on("connection", socket => {
     const newMessage = new messageModel.PrivateMessage(data)
     newMessage.save(function (err) {
       if (err) return handleError(err);
-        console.log(err)
-      });
+      console.log(err)
+    });
     if (connectedSockets.hasOwnProperty(to)) {
       connectedSockets[to].emit('PRIVATE_MESSAGE', data)
-      io.emit("PRIVATE_MESSAGE", data)
     }
+    io.emit("PRIVATE_MESSAGE", data)
   })
 })
 
