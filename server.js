@@ -27,8 +27,8 @@ var jwt = require('jsonwebtoken')
 var auth_middleware = expressJwt({ secret: dbConfig.secretkey, algorithms: ['HS256']})
 
 passport.use(new SteamStrategy({
-    returnURL: 'http://localhost:8081/auth/steam/return',
-    realm: 'http://localhost:8081/',
+    returnURL: dbConfig.backendUri + 'auth/steam/return',
+    realm: dbConfig.backendUri,
     apiKey: dbConfig.steamkey
   },
   function(identifier, profile, done) {
