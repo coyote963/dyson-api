@@ -34,9 +34,85 @@ exports.fetchPrivateChat = (req, res) => {
                 to: ObjectId(sender)
               }
             ]
-          },
+          }
         ]
     }).then(globalmessages => {
         res.send(globalmessages)
+    })
+}
+
+exports.fetchDifferentUsers = async (req, res) => {
+    const senderId = req.params.sender;
+
+    var sentFrom = messageTypes.PrivateMessage.aggregate([
+        {
+          '$match': {
+            'from': new ObjectId(senderId)
+          }
+        }, {
+          '$sort': {
+            'date': -1
+          }
+        }, {
+          '$group': {
+            '_id': '$to', 
+            'date': {
+              '$first': '$date'
+            }, 
+            'message': {
+              '$first': '$message'
+            }, 
+            'user_name': {
+              '$first': '$to_name'
+            }, 
+            'user': {
+              '$first': '$to'
+            }
+          }
+        }
+    ]).then(sentFrom => {
+        messageTypes.PrivateMessage.aggregate([
+            {
+              '$match': {
+                'to': new ObjectId('5e374d2696058a68afa4f7d0')
+              }
+            }, {
+              '$sort': {
+                'date': -1
+              }
+            }, {
+              '$group': {
+                '_id': '$from', 
+                'date': {
+                  '$first': '$date'
+                }, 
+                'message': {
+                  '$first': '$message'
+                }, 
+                'user_name': {
+                  '$first': '$from_name'
+                }, 
+                'user': {
+                  '$first': '$from'
+                }
+              }
+            }
+          ]).then(sentTo => {
+                var inbox = [...sentFrom]
+                sentTo.forEach(value => {
+                    
+                    const isSameUser = (doc) => { 
+                        return doc.user_name === value.user_name 
+                    }
+                    const index = inbox.findIndex(isSameUser)
+                    if (index === -1) {
+                        inbox.push(value)
+                    }
+                    else if (inbox[index].date < value.date) {
+                        inbox[index] = value
+                    }
+                })
+                res.send(inbox)
+          })
     })
 }

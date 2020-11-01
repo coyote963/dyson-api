@@ -32,13 +32,12 @@ passport.use(new SteamStrategy({
     apiKey: dbConfig.steamkey
   },
   function(identifier, profile, done) {
-    console.log(profile._json.steamid)
     Player.findOne({
       "profile.platform" : "0",
       "profile.profile" : profile._json.steamid
     })
     .then((user, err) => {
-      console.log(user)
+      (user)
       return done(null, user)
     })
   }
@@ -121,7 +120,6 @@ io.on("connection", socket => {
     const newMessage = new messageModel.GlobalMessage(data)
     newMessage.save(function (err) {
       if (err) return handleError(err);
-        console.log(err)
     });
     io.emit('MESSAGE', data)
   })
@@ -139,7 +137,6 @@ io.on("connection", socket => {
     const newMessage = new messageModel.PrivateMessage(data)
     newMessage.save(function (err) {
       if (err) return handleError(err);
-      console.log(err)
     });
     if (connectedSockets.hasOwnProperty(to)) {
       connectedSockets[to].emit('PRIVATE_MESSAGE', data)
