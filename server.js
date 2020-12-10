@@ -16,6 +16,7 @@ const chatRouter = require('./app/routes/chat.routes.js');
 const tdminstanceRouter = require('./app/routes/tdminstance.routes');
 const tdmprofileRouter = require('./app/routes/tdmprofiles.router')
 const messageRouter = require('./app/message/message.router')
+const clanRouter = require('./app/clan/clan.routes')
 const authRouter = require('./app/routes/auth.routes')
 var expressJwt = require('express-jwt');
 var messageModel = require('./app/message/message.model');
@@ -25,13 +26,15 @@ var jwt = require('jsonwebtoken')
 
 
 var auth_middleware = expressJwt({ secret: dbConfig.secretkey, algorithms: ['HS256']})
-
+console.log(dbConfig.backendUri + 'auth/steam/return')
 passport.use(new SteamStrategy({
     returnURL: dbConfig.backendUri + 'auth/steam/return',
     realm: dbConfig.backendUri,
     apiKey: dbConfig.steamkey
   },
   function(identifier, profile, done) {
+    console.log("Hlelo")
+    profile.identifier = identifier;
     Player.findOne({
       "profile.platform" : "0",
       "profile.profile" : profile._json.steamid
@@ -91,6 +94,7 @@ app.use('/chat', chatRouter);
 app.use('/tdminstances', tdminstanceRouter);
 app.use('/tdmprofiles', tdmprofileRouter);
 app.use('/messages', messageRouter)
+app.use('/clans', clanRouter)
 app.use('/auth', authRouter)
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));

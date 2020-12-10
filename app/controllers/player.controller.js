@@ -127,6 +127,7 @@ exports.findAltAccounts = async function(req, res) {
     })
 }
 
+
 exports.getAllClimbs = (req, res) => {
     clb.aggregate([
         {
