@@ -18,10 +18,13 @@ const tdmprofileRouter = require('./app/routes/tdmprofiles.router')
 const messageRouter = require('./app/message/message.router')
 const clanRouter = require('./app/clan/clan.routes')
 const authRouter = require('./app/routes/auth.routes')
+const configureBConnect = require('./configurebconnect');
+const loadoutRouter = require('./app/loadouts/loadouts.routes');
 var expressJwt = require('express-jwt');
 var messageModel = require('./app/message/message.model');
 var Player = require('./app/models/player.model').player
 var jwt = require('jsonwebtoken')
+
 
 
 
@@ -97,6 +100,7 @@ app.use('/messages', messageRouter)
 app.use('/clans', clanRouter)
 app.use('/auth', authRouter)
 app.set("view engine", "ejs");
+app.use('/loadouts', loadoutRouter);
 app.set("views", path.join(__dirname, "/views"));
 
 app.get("/", (req, res) => {
@@ -119,7 +123,13 @@ connectedSockets = {}
 var server = app.listen(port, host);
 const io = require("socket.io")(server)
 io.on("connection", socket => {
-  
+  socket.on('JOIN_ROOM', function(room) {
+    socket.join(room)
+  });
+
+  socket.on('LEAVE_ROOM', room => {
+    socket.leave(room)
+  })
   socket.on('MESSAGE', function (data) {
     const newMessage = new messageModel.GlobalMessage(data)
     newMessage.save(function (err) {
@@ -147,7 +157,12 @@ io.on("connection", socket => {
     }
     socket.emit("PRIVATE_MESSAGE", data)
   })
+
 })
+
+
+
+// configureBConnect(io);
 
 console.log(`Server is running on ${host}:${port}`)
 console.log('http://localhost:' + port)

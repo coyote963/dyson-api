@@ -1,3 +1,4 @@
 /node_modules
 /config/database.config.js
 wkspc.code-workspace
+/config/bman.config.js
